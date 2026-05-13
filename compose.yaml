@@ -1,0 +1,30 @@
+services:
+  openclaw-node:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/openclaw-node-workstation:latest
+    container_name: openclaw-node
+    restart: unless-stopped
+    env_file:
+      - ./etc/openclaw-node.env.example
+    shm_size: 2gb
+    security_opt:
+      - seccomp=unconfined
+    ports:
+      - "127.0.0.1:18789:18789"
+      - "127.0.0.1:9222:9222"
+      - "127.0.0.1:5900:5900"
+      - "127.0.0.1:6080:6080"
+    volumes:
+      - openclaw-workspace:/opt/openclaw-node/workspace:Z
+      - openclaw-state:/opt/openclaw-node/state:Z
+      - openclaw-browser:/opt/openclaw-node/browser-profile:Z
+      - openclaw-logs:/opt/openclaw-node/logs:Z
+    command: ["node"]
+
+volumes:
+  openclaw-workspace:
+  openclaw-state:
+  openclaw-browser:
+  openclaw-logs:

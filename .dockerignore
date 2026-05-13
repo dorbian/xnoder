@@ -1,0 +1,12 @@
+.git
+.env
+*.env
+!*.env.example
+secrets
+workspace
+state
+browser-profile
+logs
+*.tar
+*.tar.gz
+*.zip

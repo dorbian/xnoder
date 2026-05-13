@@ -1,0 +1,26 @@
+{
+  "gateway": {
+    "url": "${OPENCLAW_GATEWAY_URL}",
+    "token": "${OPENCLAW_GATEWAY_TOKEN}",
+    "webPort": ${OPENCLAW_WEB_PORT}
+  },
+  "node": {
+    "name": "${OPENCLAW_NODE_NAME}",
+    "token": "${OPENCLAW_NODE_TOKEN}",
+    "workspace": "${OPENCLAW_WORKSPACE}"
+  },
+  "browser": {
+    "cdpUrl": "${BROWSER_CDP_URL}",
+    "profile": "${CHROME_USER_DATA_DIR}"
+  },
+  "tools": {
+    "profile": "full",
+    "allow": ["exec", "browser", "filesystem", "git", "web"],
+    "exec": {
+      "host": "auto",
+      "security": "full",
+      "ask": "off",
+      "allowFrom": ["*"]
+    }
+  }
+}
