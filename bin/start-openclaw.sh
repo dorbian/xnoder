@@ -5,7 +5,15 @@ OPENCLAW_HOME="${OPENCLAW_HOME:-/opt/openclaw-node}"
 OPENCLAW_WORKSPACE="${OPENCLAW_WORKSPACE:-$OPENCLAW_HOME/workspace}"
 OPENCLAW_GATEWAY_URL="${OPENCLAW_GATEWAY_URL:-}"
 OPENCLAW_NODE_TOKEN="${OPENCLAW_NODE_TOKEN:-}"
-OPENCLAW_NODE_NAME="${OPENCLAW_NODE_NAME:-$(hostname)}"
+if [[ -z "${OPENCLAW_NODE_NAME:-}" ]]; then
+  if command -v hostname >/dev/null 2>&1; then
+    OPENCLAW_NODE_NAME="$(hostname)"
+  elif [[ -r /proc/sys/kernel/hostname ]]; then
+    OPENCLAW_NODE_NAME="$(cat /proc/sys/kernel/hostname)"
+  else
+    OPENCLAW_NODE_NAME="openclaw-node"
+  fi
+fi
 OPENCLAW_LOG_LEVEL="${OPENCLAW_LOG_LEVEL:-info}"
 
 mkdir -p "$OPENCLAW_WORKSPACE" "$OPENCLAW_HOME/logs"

@@ -16,6 +16,38 @@ export DISPLAY
 mkdir -p "$CHROME_USER_DATA_DIR" "$OPENCLAW_HOME/state/vnc" "$OPENCLAW_HOME/logs" /tmp/.X11-unix
 rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 || true
 
+die_missing() {
+  echo "[browser] ERROR: required command missing: $1" >&2
+  echo "[browser] PATH=$PATH" >&2
+  exit 127
+}
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || die_missing "$1"
+}
+
+find_chrome() {
+  for c in chromium chromium-browser google-chrome google-chrome-stable; do
+    if command -v "$c" >/dev/null 2>&1; then
+      command -v "$c"
+      return 0
+    fi
+  done
+  return 1
+}
+
+require_cmd Xvfb
+CHROME_BIN="$(find_chrome || true)"
+[[ -n "$CHROME_BIN" ]] || die_missing "chromium/chromium-browser"
+
+if [[ "$HEADLESS" != "1" ]]; then
+  require_cmd x11vnc
+fi
+
+if [[ "$ENABLE_NOVNC" == "1" && "$HEADLESS" != "1" ]]; then
+  require_cmd websockify
+fi
+
 cleanup() {
   trap - EXIT INT TERM
   for pid in "${WEBSOCKIFY_PID:-}" "${X11VNC_PID:-}" "${CHROME_PID:-}" "${OPENBOX_PID:-}" "${XVFB_PID:-}"; do
@@ -29,8 +61,16 @@ Xvfb "$DISPLAY" -screen 0 1920x1080x24 -ac +extension GLX +extension RANDR +exte
 XVFB_PID=$!
 sleep 1
 
-openbox > "$OPENCLAW_HOME/logs/openbox.log" 2>&1 &
-OPENBOX_PID=$!
+if command -v openbox >/dev/null 2>&1; then
+  openbox > "$OPENCLAW_HOME/logs/openbox.log" 2>&1 &
+  OPENBOX_PID=$!
+elif command -v xterm >/dev/null 2>&1; then
+  echo "[browser] WARN: openbox not found; continuing with xterm only." >&2
+  xterm > "$OPENCLAW_HOME/logs/xterm.log" 2>&1 &
+  OPENBOX_PID=$!
+else
+  echo "[browser] WARN: no window manager found; Chromium will still run on Xvfb." >&2
+fi
 sleep 1
 
 CHROME_FLAGS=(
@@ -49,7 +89,7 @@ if [[ "$HEADLESS" == "1" ]]; then
   CHROME_FLAGS+=(--headless=new)
 fi
 
-chromium "${CHROME_FLAGS[@]}" about:blank > "$OPENCLAW_HOME/logs/chromium.log" 2>&1 &
+"$CHROME_BIN" "${CHROME_FLAGS[@]}" about:blank > "$OPENCLAW_HOME/logs/chromium.log" 2>&1 &
 CHROME_PID=$!
 
 if [[ "$ENABLE_VNC" == "1" && "$HEADLESS" != "1" ]]; then
@@ -69,8 +109,10 @@ if [[ "$ENABLE_VNC" == "1" && "$HEADLESS" != "1" ]]; then
   fi
 
   echo "[browser] noVNC: http://127.0.0.1:${NOVNC_PORT}/vnc.html"
-  echo "[browser] VNC password: ${VNC_PASSWORD}"
 fi
 
+echo "[browser] Chromium binary: $CHROME_BIN"
 echo "[browser] Chromium CDP: http://127.0.0.1:${CHROME_DEBUG_PORT}/json/version"
-wait -n
+
+# Keep the browser service tied to Chromium, not openbox/websockify helper exits.
+wait "$CHROME_PID"

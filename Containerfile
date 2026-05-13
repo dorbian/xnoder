@@ -25,7 +25,7 @@ ENV OPENCLAW_HOME=/opt/openclaw-node \
 
 RUN dnf -y update && \
     dnf -y install \
-      bash coreutils findutils procps-ng shadow-utils util-linux \
+      bash coreutils findutils procps-ng shadow-utils util-linux hostname glibc-langpack-en \
       ca-certificates curl wget git jq gettext sudo \
       dumb-init supervisor \
       openssh-clients rsync unzip zip tar gzip xz \
@@ -38,6 +38,7 @@ RUN dnf -y update && \
       podman buildah skopeo \
       xorg-x11-server-Xvfb x11vnc novnc websockify openbox xterm dbus-x11 \
       chromium \
+      which \
       liberation-fonts google-noto-emoji-fonts google-noto-sans-cjk-fonts fontconfig \
     && dnf clean all
 

@@ -49,7 +49,17 @@ if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -n "${OPENCLAW_NODE_TOKEN:-}" ]]; then
   export OPENCLAW_GATEWAY_TOKEN="$OPENCLAW_NODE_TOKEN"
 fi
 
-export OPENCLAW_NODE_NAME="${OPENCLAW_NODE_NAME:-$(hostname)}"
+if [[ -z "${OPENCLAW_NODE_NAME:-}" ]]; then
+  if command -v hostname >/dev/null 2>&1; then
+    export OPENCLAW_NODE_NAME="$(hostname)"
+  elif [[ -r /proc/sys/kernel/hostname ]]; then
+    export OPENCLAW_NODE_NAME="$(cat /proc/sys/kernel/hostname)"
+  else
+    export OPENCLAW_NODE_NAME="openclaw-node"
+  fi
+else
+  export OPENCLAW_NODE_NAME
+fi
 export OPENCLAW_LOG_LEVEL="${OPENCLAW_LOG_LEVEL:-info}"
 
 CONFIG_FILE="$OPENCLAW_CONFIG_DIR/openclaw-node.json"
