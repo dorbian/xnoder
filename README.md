@@ -371,3 +371,53 @@ On the host:
 ```
 
 The host secret file is mounted read-only into the container by the provided run/systemd examples.
+
+
+## OpenClaw exits with `exit status 1`
+
+`exit status 1` means the `openclaw` binary was found and started, but OpenClaw rejected something at runtime. The usual causes are:
+
+- `OPENCLAW_NODE_TOKEN` is still a placeholder or is not a node/pairing token.
+- `OPENCLAW_GATEWAY_URL` points to the wrong host, port, or scheme.
+- the container cannot reach the gateway from its network namespace.
+- the installed OpenClaw CLI uses different arguments than `openclaw node start --gateway ... --token ...`.
+- you actually need gateway mode instead of node mode.
+
+Run the built-in diagnostic:
+
+```bash
+podman exec -it openclaw-node /opt/openclaw-node/bin/diagnose-openclaw.sh
+```
+
+Useful direct log commands:
+
+```bash
+podman exec -it openclaw-node sh -lc '
+cat /opt/openclaw-node/logs/openclaw-startup.log 2>/dev/null || true
+tail -200 /opt/openclaw-node/logs/openclaw.err.log 2>/dev/null || true
+tail -200 /opt/openclaw-node/logs/openclaw.log 2>/dev/null || true
+'
+```
+
+### If the CLI arguments changed
+
+Use the override variable in `/opt/openclaw-node/secrets/openclaw-node.env`:
+
+```bash
+OPENCLAW_COMMAND_OVERRIDE='openclaw node start --gateway ws://YOUR-GATEWAY:18789 --token YOURTOKEN --name openclaw-node-01 --workspace /opt/openclaw-node/workspace'
+```
+
+### If this container should run the gateway itself
+
+Set:
+
+```bash
+OPENCLAW_MODE=gateway
+OPENCLAW_GATEWAY_TOKEN=your-gateway-token
+```
+
+For a loopback-only local gateway:
+
+```bash
+OPENCLAW_MODE=local-gateway
+```
