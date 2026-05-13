@@ -8,7 +8,8 @@ echo '== binaries =='
 for c in openclaw node npm chromium chromium-browser Xvfb x11vnc websockify hostname envsubst bash curl jq; do printf '%-18s ' "$c"; command -v "$c" || true; done
 echo '== openclaw =='
 openclaw --version 2>&1 || true
-openclaw node start --help 2>&1 | sed -n '1,80p' || true
+openclaw node run --help 2>&1 | sed -n '1,100p' || true
+openclaw node start --help 2>&1 | sed -n '1,60p' || true
 echo '== env =='
 echo "OPENCLAW_MODE=${OPENCLAW_MODE:-node}"
 echo "OPENCLAW_GATEWAY_URL=${OPENCLAW_GATEWAY_URL:-<empty>}"

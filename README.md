@@ -97,7 +97,7 @@ Required values:
 
 ```bash
 OPENCLAW_GATEWAY_URL=ws://your-openclaw-gateway:18789
-OPENCLAW_NODE_TOKEN=your-node-join-token
+OPENCLAW_GATEWAY_TOKEN=your-gateway-token
 VNC_PASSWORD=your-vnc-password
 ```
 
@@ -340,7 +340,7 @@ It should contain at least:
 
 ```bash
 OPENCLAW_GATEWAY_URL=ws://your-openclaw-gateway:18789
-OPENCLAW_NODE_TOKEN=your-node-join-token
+OPENCLAW_GATEWAY_TOKEN=your-gateway-token
 VNC_PASSWORD=your-vnc-password
 ```
 
@@ -380,7 +380,7 @@ The host secret file is mounted read-only into the container by the provided run
 - `OPENCLAW_NODE_TOKEN` is still a placeholder or is not a node/pairing token.
 - `OPENCLAW_GATEWAY_URL` points to the wrong host, port, or scheme.
 - the container cannot reach the gateway from its network namespace.
-- the installed OpenClaw CLI uses different arguments than `openclaw node start --gateway ... --token ...`.
+- the installed OpenClaw CLI uses different arguments than `openclaw node run --host ... --port ... --display-name ...`.
 - you actually need gateway mode instead of node mode.
 
 Run the built-in diagnostic:
@@ -404,7 +404,7 @@ tail -200 /opt/openclaw-node/logs/openclaw.log 2>/dev/null || true
 Use the override variable in `/opt/openclaw-node/secrets/openclaw-node.env`:
 
 ```bash
-OPENCLAW_COMMAND_OVERRIDE='openclaw node start --gateway ws://YOUR-GATEWAY:18789 --token YOURTOKEN --name openclaw-node-01 --workspace /opt/openclaw-node/workspace'
+OPENCLAW_COMMAND_OVERRIDE='openclaw node run --host 192.168.0.202 --port 18789 --display-name openclaw-node-01'
 ```
 
 ### If this container should run the gateway itself
